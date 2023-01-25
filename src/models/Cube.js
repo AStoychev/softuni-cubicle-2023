@@ -12,7 +12,7 @@ class Cube {
 
     static save(cube) {
         db.cubes.push(cube);
-        const jsonData = JSON.stringify(db, 2);
+        const jsonData = JSON.stringify(db, null, 2);
         fs.writeFileSync(path.resolve(__dirname, '../db.json'), jsonData)
     }
 }
