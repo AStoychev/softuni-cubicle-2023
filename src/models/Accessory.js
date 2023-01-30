@@ -8,12 +8,13 @@ const accessorySchema = new mongoose.Schema({
     imageUrl: {
         type: String,
         required: true,
+        match: [/^https?:\/\//, 'Invalid URL'],
     },
     description: {
         type: String,
         required: true,
         maxLength: 50,
-    }
+    },
 });
 
 const Accessory = mongoose.model('Accessory', accessorySchema);
