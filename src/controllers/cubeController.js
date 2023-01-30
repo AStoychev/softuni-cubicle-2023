@@ -40,4 +40,4 @@ exports.postAttachAccessory = async (req, res) => {
     await cube.save();
 
     res.redirect(`/cubes/${cube._id}/details`);
-}; 
+};
