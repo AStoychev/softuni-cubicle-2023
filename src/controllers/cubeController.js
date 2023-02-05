@@ -40,6 +40,10 @@ exports.getAttachAccessory = async (req, res) => {
     const cube = await Cube.findById(req.params.cubeId).lean();
     const accessories = await Accessory.find({ _id: { $nin: cube.accessories } }).lean();
 
+    if (!cubeUtils.isOwner(req.user, cube)) {
+        return res.redirect('/404');
+    }
+
     res.render('cube/attach', { cube, accessories });
 };
 
