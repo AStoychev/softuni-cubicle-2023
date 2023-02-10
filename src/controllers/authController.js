@@ -1,6 +1,7 @@
 const router = require('express').Router();
 
 const authService = require('../services/authService');
+const { parseMongooseError } = require('../utils/errorUtils');
 
 router.get('/login', (req, res) => {
     res.render('auth/login');
@@ -15,33 +16,41 @@ router.post('/login', async (req, res) => {
         res.cookie('auth', token, { httpOnly: true});
 
     } catch (err) {
-        console.log(err)
+        console.log(err.message);
+        return res.render('auth/login', { error: err.message });
     }           
+
     res.redirect('/');
-
-
 });
 
 router.get('/register', (req, res) => {
     res.render('auth/register');
 });
 
-router.post('/register', async (req, res) => {
+router.post('/register', async (req, res, next) => {
     const {username, password, repeatPassword} = req.body;
 
     if (password !== repeatPassword) {
-        return res.redirect('/404');
+        return next(new Error(`Password missmatch`));
+        // return res.render('auth/register', {error: 'Password Missmatch!'});
     }
 
     const existingUser = await authService.getUserByUsername(username);
 
     if (existingUser) {
-        return res.redirect('/404');
+        return res.render('auth/register', {error: 'User already exists!'});
+        // return res.redirect('/404');
     }
 
-    const user = await authService.register(username, password);
+    try {
+        const user = await authService.register(username, password);
+        console.log(user);
 
-    console.log(user);
+    } catch(err) {
+        const errors = parseMongooseError(err);
+
+        return res.render('auth/register', {error: errors[0]});
+    } 
 
     res.redirect('/login');
 });
